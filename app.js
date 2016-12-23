@@ -5,8 +5,8 @@ var cookieParser	= 	require('cookie-parser'),	 //For managing session
 	session 		=	require('express-session'),
 	config			=	require('./config/config.js'), //provides setting relevant to mode app is running
 		// In PRODUCTION sessions cant be stored in default memory store so,
-	ConnectMongo	=	require('connect-mongo')(session)	// store session in mongo lab account
-
+	ConnectMongo	=	require('connect-mongo')(session),	// store session in mongo lab account
+	mongoose		=	require('mongoose').connect(config.dbURL)
 	;
 
 	// Setting hogan as templating engine
@@ -25,7 +25,8 @@ if (env === 'development') {
 	app.use(session({
 		secret: config.sessionSecret,
 		store: new ConnectMongo({ 	// stores session in mongolab
-			url: config.dbURL,
+			//url: config.dbURL, //mongoose and connect mongo create their own connections
+			mongooseConnection:mongoose.connections[0],		// 1 instance [0] has active connection
 			stingify: true
 			})
 		})
