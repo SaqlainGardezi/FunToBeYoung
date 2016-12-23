@@ -1,12 +1,14 @@
-var express 		=	require('express');
-var app 			=	express();
-var path 			=	require('path');
-var cookieParser	= 	require('cookie-parser'),	 //For managing session
-	session 		=	require('express-session'),
-	config			=	require('./config/config.js'), //provides setting relevant to mode app is running
+var express 			=	require('express');
+var app 				=	express();
+var path 				=	require('path');
+var cookieParser		=	require('cookie-parser'),	 //For managing session
+	session 			=	require('express-session'),
+	config				=	require('./config/config.js'), //provides setting relevant to mode app is running
 		// In PRODUCTION sessions cant be stored in default memory store so,
-	ConnectMongo	=	require('connect-mongo')(session),	// store session in mongo lab account
-	mongoose		=	require('mongoose').connect(config.dbURL)
+	ConnectMongo		=	require('connect-mongo')(session),	// store session in mongo lab account
+	mongoose			=	require('mongoose').connect(config.dbURL),
+	passport			=	require('passport'),
+	FacebookStrategy	=	require('passport-facebook').Strategy // for fb based auth
 	;
 
 	// Setting hogan as templating engine
@@ -20,7 +22,8 @@ var env		=	process.env.NODE_ENV || 'development';
 if (env === 'development') {
 		// dev specific settings
 	app.use(session({secret:config.sessionSecret, saveUninitialized: true, resave: true}));
-}else{
+}
+else{
 		// production specific settings
 	app.use(session({
 		secret: config.sessionSecret,
@@ -33,8 +36,13 @@ if (env === 'development') {
 	);
 }
 
+app.use(passport.initialize());
+app.use(passport.session());
+
+require('./auth/passportAuth.js')(passport, FacebookStrategy, config, mongoose);
+
 	//	Call routes.js module in app.js and invoke the function
-require('./routes/routes.js')(express,app);
+require('./routes/routes.js')(express,app, passport);
 
 app.listen(3000, ()=> {
 	console.log("app running at port 3000");

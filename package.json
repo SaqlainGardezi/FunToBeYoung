@@ -22,6 +22,9 @@
     "express": "^4.14.0",
     "express-session": "^1.2.0",
     "hogan-express": "^0.5.2",
-    "mongoose": "^4.1.9"
+    "mongoose": "^4.1.9",
+    "passport": "^0.2.0",
+    "passport-facebook": "^1.0.3",
+    "socket.io": "^0.9.17"
   }
 }

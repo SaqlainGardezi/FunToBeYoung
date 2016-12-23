@@ -1,23 +1,43 @@
-module.exports	=	function(express, app){
+module.exports	=	function(express, app, passport){
 	var router	=	express.Router();
 
-	router.get('/', function(req, res, next){
-
+		//middleware to check if logged in don't show index page
+	function publicPage(req,res, next){ 
+		if(req.isAuthenticated()){
+			res.redirect('/chatrooms');
+		}
+		else{
+			next();
+		}
+	}
+	router.get('/', publicPage, function(req, res, next){
 		res.render('index', {title: "chat"});
 	});
-	router.get('/chatrooms', function(req, res, next){
+
+	function securePages(req, res, next){
+		if(req.isAuthenticated()){
+			next();
+		}
+		else{
+			res.redirect('/');
+		}
+	}
+
+	router.get('/auth/facebook', passport.authenticate('facebook'));
+	router.get('/auth/facebook/callback', passport.authenticate('facebook', {
+		successRedirect: '/chatrooms',
+		failureRedirect: '/'
+	}));
+	router.get('/chatrooms', securePages, function(req, res, next){
 				//res.send('chatrooms', {title: 'Chatrooms'});   <--DON'T WORK
-		res.render('chatrooms', {title: 'Chatrooms'});
+		res.render('chatrooms', {title: 'Chatrooms', user: req.user});
 	});
 
-	router.get('/setcolor', function(req,res,next){
-		req.session.favcolor="gray";
-		res.send("color set to " + req.session.favcolor);
+	router.get('/logout', function(req, res, next){
+		req.logout();
+		res.redirect('/');
 	});
-	router.get('/getcolor', function(req, res, next){
-		var color= req.session.favcolor !== undefined? req.session.favcolor : "not defined" ;
-		res.send("color " + color);
-	});
+
 
 		// set default route to instance of this router
 	app.use('/', router);
