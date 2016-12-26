@@ -4,7 +4,7 @@
 	"fb": {
 		"appID": "1252601454836932",
 		"appSecret": "64caf98f877f8d608285a7cfd1e129a4",
-		"callbackURL": "https://chat-app-by-saqlain.herokuapp.com/auth/facebook/callback"
+		"callbackURL": "http://localhost:3000/auth/facebook/callback"
 	},
-	"host": "https://chat-app-by-saqlain.herokuapp.com/"
+	"host": "http://localhost:3000"
 }
