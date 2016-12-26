@@ -8,8 +8,8 @@ var cookieParser		=	require('cookie-parser'),	 //For managing session
 	ConnectMongo		=	require('connect-mongo')(session),	// store session in mongo lab account
 	mongoose			=	require('mongoose').connect(config.dbURL),
 	passport			=	require('passport'),
-	FacebookStrategy	=	require('passport-facebook').Strategy // for fb based auth
-	;
+	FacebookStrategy	=	require('passport-facebook').Strategy, // for fb based auth
+	rooms				=	[];
 
 	// Setting hogan as templating engine
 app.set('views', path.join(__dirname,'views'));	// Set views folder
@@ -42,9 +42,17 @@ app.use(passport.session());
 require('./auth/passportAuth.js')(passport, FacebookStrategy, config, mongoose);
 
 	//	Call routes.js module in app.js and invoke the function
-require('./routes/routes.js')(express,app, passport);
+require('./routes/routes.js')(express,app, passport, config, rooms);
 
-app.listen(3000, ()=> {
-	console.log("app running at port 3000");
-	console.log("Mode : " + env);
+// app.listen(3000, ()=> {
+// 	console.log("app running at port 3000");
+// 	console.log("Mode : " + env);
+// });
+
+app.set('port', process.env.PORT || 3000);
+var server	= require('http').createServer(app);
+var io		= require('socket.io').listen(server);
+require('./socket/socket.js')(io, rooms);
+server.listen(app.get('port'), function(){
+	console.log('ChatCAT running at port : ' + app.get('port'));
 });
